@@ -1,10 +1,10 @@
 import React from 'react'
-
+import { Button } from 'antd';
 function Contact() {
     return (
         <div>
-            <h1>This is the contact page</h1>
-        </div>
+        <Button>đây là button</Button>
+    </div>
     )
 }
 

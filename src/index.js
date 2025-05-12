@@ -16,6 +16,8 @@ import { applyMiddleware, createStore } from 'redux';
 import authReducer from './redux/reducers/authReducer';
 import thunk from 'redux-thunk';
 import axios from 'axios';
+import About from './component/About';
+import InforAccount from './component/InforAccount';
 
 const router = createBrowserRouter([
   {
@@ -24,12 +26,20 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage/>,
     children: [
       {
+        path: "/",
+        element: <Home />,
+      },{
         path: "/contact",
         element: <Contact />,
       },
       {
-        path: "/",
-        element: <Home />,
+        path: "/about",
+        element: <About />,
+      }
+      ,
+      {
+        path: "/infor",
+        element: <InforAccount />,
       }
     ],
   },
@@ -41,7 +51,7 @@ const router = createBrowserRouter([
 ]);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const store =createStore(authReducer, applyMiddleware(thunk))
-axios.defaults.baseURL='https://localhost:443/api'
+axios.defaults.baseURL='http://localhost:8080/api'
 root.render(
   <Provider store={store}>
     <RouterProvider router={router} />
