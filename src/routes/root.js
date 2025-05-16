@@ -6,7 +6,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Avatar, Button, Drawer, Layout, Menu, Modal, Dropdown } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import useBreakpoint from "antd/es/grid/hooks/useBreakpoint";
 import Cookies from "js-cookie";
@@ -20,6 +20,15 @@ const Root = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const screens = useBreakpoint();
   const location = useLocation();
+  const token = Cookies.get("token");
+  useEffect(() => {
+    if (token && location.pathname === "/login") {
+      navigate("/");
+    } else if (!token && location.pathname !== "/login") {
+      navigate("/login");
+    }
+  }, [token, location.pathname, navigate]);
+  
   const items = [
     {
       key: "/",
@@ -70,15 +79,18 @@ const Root = () => {
   }
 
   // Token gốc
-  const token = Cookies.get("token");
+
   const payload = decodeJwtPayload(token);
   const userName = payload?.fullname;
 
   const handleOk = () => {
-    Cookies.remove("token");
+    if (token) {
+      Cookies.remove("token");
+      navigate("/login");
+    }
     setIsModalVisible(false);
-    navigate("/login");
   };
+  
 
   const handleCancel = () => {
     setIsModalVisible(false);
