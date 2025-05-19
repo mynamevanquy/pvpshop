@@ -1,40 +1,8 @@
 // LoadingSpinner.js
 import React from 'react';
-import { Spin } from 'antd';
 import { ShopTwoTone } from '@ant-design/icons';
 
 const LoadingSpinner = ({ loading }) => {
-  const antIcon = (
-    <div style={{ position: 'relative', width: 60, height: 60 }}>
-      <div
-        style={{
-          position: 'absolute',
-          width: 60,
-          height: 60,
-          border: '4px solid #f36b27',
-          borderTop: '4px solid transparent',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-          top: 0,
-          left: 0,
-          zIndex: 0,
-        }}
-      />
-      <ShopTwoTone
-        twoToneColor="#f36b27"
-        style={{ fontSize: 48, position: 'absolute', top: 6, left: 6, zIndex: 1 }}
-      />
-      <style>
-        {`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}
-      </style>
-    </div>
-  );
-
   return (
     loading && (
       <div
@@ -51,14 +19,59 @@ const LoadingSpinner = ({ loading }) => {
           zIndex: 9999,
         }}
       >
-        <Spin
-          size="large"
-          tip="Đang xử lý..."
-          indicator={antIcon}
-        />
+        <div
+          style={{
+            width: 60,
+            height: 60,
+            position: 'relative',
+          }}
+        >
+          {/* Vòng quay */}
+          <div
+            style={{
+              width: 60,
+              height: 60,
+              border: '4px solid #000000',
+              borderTop: '4px solid transparent',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              boxSizing: 'border-box',
+            }}
+          />
+          {/* Logo giữa vòng */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: 60,
+              height: 60,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <ShopTwoTone twoToneColor="#f36b27" style={{ fontSize: 32 }} />
+          </div>
+          <style>
+            {`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}
+          </style>
+        </div>
+        <div style={{ marginTop: 16, position: 'absolute', top: 'calc(50% + 50px)', color: '#f36b27' }}>
+          Đang xử lý...
+        </div>
       </div>
     )
   );
 };
+
 
 export default LoadingSpinner;

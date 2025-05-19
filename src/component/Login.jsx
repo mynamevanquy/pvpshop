@@ -18,37 +18,6 @@ function Login() {
   const dispatch = useDispatch();
   const isAuthencation = useSelector((state) => state.isAuthencation);
 
-  const antIcon = (
-    <div style={{ position: 'relative', width: 60, height: 60 }}>
-      <div
-        style={{
-          position: 'absolute',
-          width: 60,
-          height: 60,
-          border: '4px solid #f36b27',
-          borderTop: '4px solid transparent',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-          top: 0,
-          left: 0,
-          zIndex: 0,
-        }}
-      />
-      <ShopTwoTone
-        twoToneColor="#f36b27"
-        style={{ fontSize: 48, position: 'absolute', top: 6, left: 6, zIndex: 1 }}
-      />
-      {/* Inject keyframes bằng style tag */}
-      <style>
-        {`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}
-      </style>
-    </div>
-  );
   useEffect(() => {
     if (isAuthencation) {
       navigate('/');
@@ -72,7 +41,6 @@ function Login() {
   return (
     <>
      <LoadingSpinner loading={loading} />
-
       <div
         style={{
           display: 'flex',

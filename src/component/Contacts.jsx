@@ -3,7 +3,7 @@ import { Button } from 'antd';
 function Contact() {
     return (
         <div>
-        <Button>đây là button</Button>
+        <Button>đây là Contact</Button>
     </div>
     )
 }

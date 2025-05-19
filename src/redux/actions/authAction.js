@@ -33,8 +33,16 @@ export const login = (username, password) => async (dispatch) => {
   }
 };
 
-export const logout = () => (dispatch) => {
+export const logout = (navigate) => (dispatch) => {
   Cookies.remove("token");
-
   dispatch({ type: LOGOUT });
+
+  notification.info({
+    message: "Đã đăng xuất",
+    description: "Bạn đã đăng xuất khỏi hệ thống",
+  });
+
+  if (navigate) {
+    navigate("/login");
+  }
 };

@@ -4,66 +4,39 @@ import {
   PieChartOutlined,
   TeamOutlined,
   UserOutlined,
+  MenuOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Drawer, Layout, Menu, Modal, Dropdown } from "antd";
-import { useEffect, useState } from "react";
+import { Avatar, Button, Drawer, Layout, Modal, Dropdown } from "antd";
+import { useEffect, useState, useRef } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import useBreakpoint from "antd/es/grid/hooks/useBreakpoint";
 import Cookies from "js-cookie";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/actions/authAction";
+import LoadingSpinner from "../util/spin";
+import NavigationMenu from "../component/NavigationsMenu";
 
 const { Header, Content, Footer, Sider } = Layout;
 
 const Root = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const navigate = useNavigate();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const screens = useBreakpoint();
   const location = useLocation();
+  const contentRef = useRef(null);
   const token = Cookies.get("token");
-  useEffect(() => {
-    if (token && location.pathname === "/login") {
-      navigate("/");
-    } else if (!token && location.pathname !== "/login") {
-      navigate("/login");
-    }
-  }, [token, location.pathname, navigate]);
-  
-  const items = [
-    {
-      key: "/",
-      icon: <PieChartOutlined />,
-      label: "Trang Chủ",
-    },
-    {
-      key: "/about",
-      icon: <DesktopOutlined />,
-      label: "Giới Thiệu",
-    },
-    {
-      key: "/contact",
-      icon: <UserOutlined />,
-      label: "Liên Hệ",
-    },
-    {
-      key: "/infor",
-      icon: <TeamOutlined />,
-      label: "Trang Cá Nhân",
-    },
-  ];
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  function decodeJwtPayload(token) {
-    if (!token || typeof token !== "string") {
-      console.warn("Token không hợp lệ hoặc không tồn tại!");
-      return null;
-    }
-
+  const decodeJwtPayload = (token) => {
+    if (!token || typeof token !== "string") return null;
     try {
       const base64Url = token.split(".")[1];
-      if (!base64Url) throw new Error("Token sai định dạng");
+      if (!base64Url) throw new Error("Token không hợp lệ");
 
       const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-
       const jsonPayload = decodeURIComponent(
         atob(base64)
           .split("")
@@ -76,162 +49,178 @@ const Root = () => {
       console.error("Giải mã token thất bại:", err.message);
       return null;
     }
-  }
-
-  // Token gốc
+  };
 
   const payload = decodeJwtPayload(token);
   const userName = payload?.fullname;
 
-  const handleOk = () => {
-    if (token) {
-      Cookies.remove("token");
-      navigate("/login");
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (!token && location.pathname !== "/login") {
+      navigate("/login", { replace: true });
     }
-    setIsModalVisible(false);
-  };
-  
+  }, [location.pathname, navigate]);
 
-  const handleCancel = () => {
-    setIsModalVisible(false);
+  const handleLogoutConfirm = () => {
+    setLoading(true);
+    setTimeout(() => {
+      dispatch(logout(navigate));
+      setIsModalVisible(false);
+      setLoading(false);
+    }, 500);
   };
+
+  const handleCancel = () => setIsModalVisible(false);
 
   const handleMenuClick = ({ key }) => {
     if (key === "/login") {
-      setIsModalVisible(true); // Gọi modal xác nhận
+      setIsModalVisible(true);
     } else {
       navigate(key);
+      setDrawerVisible(false);
     }
   };
-  const itemsdrop = [
-    {
-      key: "/infor",
-      label: "Trang Cá Nhân",
-      icon: <UserOutlined />,
-    },
-    {
-      key: "/login",
-      label: "Đăng Xuất",
-      icon: <FileOutlined />,
-    },
+
+  const siderMenuItems = [
+    { key: "/", icon: <PieChartOutlined />, label: "Trang Chủ" },
+    { key: "/about", icon: <DesktopOutlined />, label: "Giới Thiệu" },
+    { key: "/contact", icon: <UserOutlined />, label: "Liên Hệ" },
+    { key: "/infor", icon: <TeamOutlined />, label: "Trang Cá Nhân" },
+  ];
+
+  const dropdownItems = [
+    { key: "/infor", label: "Trang Cá Nhân", icon: <UserOutlined /> },
+    { key: "/login", label: "Đăng Xuất", icon: <FileOutlined /> },
   ];
 
   return (
     <Layout style={{ overflowX: "hidden" }}>
+      {/* HEADER */}
       <Header
         style={{
           position: "fixed",
-          width: "100%",
           top: 0,
+          width: "100%",
           zIndex: 1000,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           padding: "0 20px",
-          left: 0,
-          borderBottom: "5px solid #ddd",
           backgroundColor: "#001529",
+          borderBottom: "5px solid #ddd",
         }}
       >
         <div
           style={{
             color: "white",
-            fontSize: "30px",
+            fontSize: 20,
             display: "flex",
             alignItems: "center",
+            maxWidth: 400, // Giới hạn chiều rộng tối đa (điều chỉnh nếu cần)
+            minWidth: 0, // Để flexbox tính toán co lại đúng
+            overflow: "hidden",
+            whiteSpace: "nowrap",
           }}
         >
           <img
             src="logopvpshop.png"
-            style={{
-              width: "70px",
-              height: "auto",
-              maxWidth: "100%",
-              marginRight: "5px",
-            }}
             alt="Logo"
+            style={{ width: 50, height: "auto", marginRight: 5, flexShrink: 0 }}
           />
-          <span>PVP-Shop</span>
+          <span style={{ textOverflow: "ellipsis", overflow: "hidden" }}>
+            PVP-Shop
+          </span>
         </div>
-        <div
-          onClick={() => setDrawerVisible(true)}
-          style={{
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            color: "white", // màu chữ cho theme tối
-          }}
-        >
+
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {userName ? (
             <Dropdown
-              menu={{ items: itemsdrop, onClick: handleMenuClick }}
+              menu={{ items: dropdownItems, onClick: handleMenuClick }}
               placement="bottomRight"
-              arrow={{ pointAtCenter: true }}
               trigger={["click"]}
+              arrow={{ pointAtCenter: true }}
             >
               <div
                 style={{
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px",
+                  gap: 8,
                 }}
               >
                 <Avatar
                   icon={<UserOutlined />}
                   style={{ backgroundColor: "#1890ff" }}
                 />
-                <span style={{ color: "white" }}>{userName}</span>
+                <span
+                  style={{
+                    color: "white",
+                    maxWidth: 100,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {userName}
+                </span>
               </div>
             </Dropdown>
           ) : (
-            <Button onClick={handleOk}>Đăng Nhập / Đăng Ký</Button>
+            <Button onClick={() => navigate("/login")}>
+              Đăng Nhập / Đăng Ký
+            </Button>
+          )}
+
+          {/* Icon menu hiển thị sau tên người dùng hoặc nút đăng nhập */}
+          {!screens.md && (
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              onClick={() => setDrawerVisible(true)}
+              style={{ color: "white", fontSize: 20 }}
+            />
           )}
         </div>
       </Header>
 
+      {/* BODY */}
       <Layout hasSider style={{ paddingTop: 64 }}>
+        {/* SIDEBAR */}
         {screens.md && (
           <Sider
             collapsible
             collapsed={collapsed}
-            onCollapse={(value) => {
-              setCollapsed(value);
-              document.getElementById("main-content").style.marginLeft = value
-                ? "90px"
-                : "250px";
-            }}
+            onCollapse={setCollapsed}
             width={250}
             collapsedWidth={90}
             theme="dark"
             style={{
-              overflow: "auto",
-              height: "calc(100vh - 64px)",
               position: "fixed",
-              left: 0,
               top: 64,
+              left: 0,
+              height: "calc(100vh - 64px)",
+              overflow: "auto",
             }}
           >
-            <Menu
-              theme="dark"
-              selectedKeys={[location.pathname]}
-              mode="inline"
+            <NavigationMenu
+              items={siderMenuItems}
               onClick={({ key }) => navigate(key)}
-              items={items}
+              selectedKeys={[location.pathname]}
             />
           </Sider>
         )}
 
+        {/* CONTENT */}
         <Layout
+          id="main-content"
           style={{
-            marginLeft: screens.md ? 250 : 0,
+            marginLeft: screens.md ? (collapsed ? 90 : 250) : 0,
             transition: "all 0.2s",
           }}
-          id="main-content"
         >
-          <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
+          <Content style={{ margin: "24px 16px 0" }}>
             <div
+              ref={contentRef}
               style={{
                 padding: 24,
                 minHeight: 600,
@@ -239,11 +228,9 @@ const Root = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 flexDirection: "column",
-                width: "100%",
-                maxWidth: "100%",
-                boxSizing: "border-box",
               }}
             >
+              <LoadingSpinner loading={loading} />
               <Outlet />
             </div>
           </Content>
@@ -251,37 +238,31 @@ const Root = () => {
         </Layout>
       </Layout>
 
+      {/* DRAWER FOR MOBILE */}
       {!screens.md && (
         <Drawer
           title="Menu"
           placement="right"
-          onClose={() => setDrawerVisible(false)}
           open={drawerVisible}
-          bodyStyle={{
-            padding: 0,
-            backgroundColor: "#1f1f1f",
-            color: "#fff",
-          }}
-          headerStyle={{
-            backgroundColor: "#141414",
-            borderBottom: "1px solid #333",
-            color: "#fff",
-          }}
+          onClose={() => setDrawerVisible(false)}
+          bodyStyle={{ padding: 0, backgroundColor: "#1f1f1f" }}
+          headerStyle={{ backgroundColor: "#141414", color: "#fff" }}
           closeIcon={<span style={{ color: "#fff", fontSize: 18 }}>✕</span>}
         >
-          <Menu
-            theme="dark"
-            mode="vertical"
-            items={itemsdrop}
+          <NavigationMenu
+            items={siderMenuItems}
             onClick={handleMenuClick}
+            selectedKeys={[location.pathname]}
+            mode="vertical"
           />
         </Drawer>
       )}
 
+      {/* LOGOUT MODAL */}
       <Modal
         title="Xác nhận đăng xuất"
         open={isModalVisible}
-        onOk={handleOk}
+        onOk={handleLogoutConfirm}
         onCancel={handleCancel}
         okText="Có"
         cancelText="Không"

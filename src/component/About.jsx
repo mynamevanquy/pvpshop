@@ -4,7 +4,7 @@ import React from 'react'
 function About() {
     return (
         <div>
-            <Button>đây là button</Button>
+            <Button>đây là about</Button>
         </div>
     )
 }
