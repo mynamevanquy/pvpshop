@@ -15,6 +15,7 @@ const NavigationMenu = ({
       selectedKeys={selectedKeys}
       items={items}
       onClick={onClick}
+      style={{ marginTop: 30 }} 
     />
   );
 };

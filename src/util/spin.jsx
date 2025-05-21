@@ -2,7 +2,7 @@
 import React from 'react';
 import { ShopTwoTone } from '@ant-design/icons';
 
-const LoadingSpinner = ({ loading }) => {
+const LoadingSpinner = ({ loading, tip }) => {
   return (
     loading && (
       <div
@@ -66,7 +66,7 @@ const LoadingSpinner = ({ loading }) => {
           </style>
         </div>
         <div style={{ marginTop: 16, position: 'absolute', top: 'calc(50% + 50px)', color: '#f36b27' }}>
-          Đang xử lý...
+          {tip || "Đang xử lý..."}
         </div>
       </div>
     )

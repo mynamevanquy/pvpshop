@@ -2,63 +2,55 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import Root from './routes/root';
-import ErrorPage from './error-page';
-import Login from './component/Login';
-import Contact from './component/Contacts';
-import Home from './component/Home';
+
 import { Provider } from 'react-redux';
 import { applyMiddleware, createStore } from 'redux';
-import authReducer from './redux/reducers/authReducer';
 import thunk from 'redux-thunk';
+import authReducer from './redux/reducers/authReducer';
+
 import axios from 'axios';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+
+// Pages / Routes
+import Root from './routes/Root';
+import ErrorPage from './error-page';
+import Home from './component/Home';
+import Contact from './component/Contacts';
 import About from './component/About';
 import InforAccount from './component/InforAccount';
+import Login from './component/Login';
+import ForgotPasswordPage from './component/ForgotPasswordPage';
+import ResetPasswordPage from './component/ResetPasswordPage';
 
+// Cấu hình axios
+axios.defaults.baseURL = 'http://localhost:8080/api';
+
+// Cấu hình redux store
+const store = createStore(authReducer, applyMiddleware(thunk));
+
+// Router setup
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <Root />,
-    errorElement: <ErrorPage/>,
+    errorElement: <ErrorPage />,
     children: [
-      {
-        path: "/",
-        element: <Home />,
-      },{
-        path: "/contact",
-        element: <Contact />,
-      },
-      {
-        path: "/about",
-        element: <About />,
-      }
-      ,
-      {
-        path: "/infor",
-        element: <InforAccount />,
-      }
+      { index: true, element: <Home /> },
+      { path: 'contact', element: <Contact /> },
+      { path: 'about', element: <About /> },
+      { path: 'infor', element: <InforAccount /> },
     ],
   },
-  {
-    path: "/login",
-    element: <Login />,
-    errorElement: <ErrorPage/>,
-  },
+  { path: '/login', element: <Login /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/reset-password', element: <ResetPasswordPage /> },
 ]);
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const store =createStore(authReducer, applyMiddleware(thunk))
-axios.defaults.baseURL='http://localhost:8080/api'
 root.render(
   <Provider store={store}>
     <RouterProvider router={router} />
-</Provider>
+  </Provider>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
